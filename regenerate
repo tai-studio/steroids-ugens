@@ -1,1 +1,1 @@
-python /localvol/sound/src/supercollider/tools/cmake_gen/generate_server_plugin_cmake.py -P "Steroids" -p "plugins/SSinOscFB" -a "LFSaw"
+python ../../supercollider/tools/cmake_gen/generate_server_plugin_cmake.py . -a LFSaw -P "Steroids" -f "plugins" -C "classes" -H "help"

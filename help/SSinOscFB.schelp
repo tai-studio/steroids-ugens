@@ -1,0 +1,152 @@
+class:: SSinOscFB
+summary:: Feedback FM oscillator with ar-inputs
+related:: Classes/SinOscFB
+categories:: UGens > Generators > Chaotic
+
+description::
+SSinOscFB is a sine oscillator that has phase modulation feedback; its output plugs back into the phase input. Basically this allows a modulation between a sine wave and a sawtooth like wave. Overmodulation causes chaotic oscillation. It may be useful if you want to simulate feedback FM synths.
+
+
+Part of Steroids: sc standard UGens on steroids.
+
+
+classmethods::
+
+method::ar, kr
+
+argument::freq
+Audio-rate frequency of the sine oscillator in Hertz.
+
+argument::feedback
+Audio-rate amplitude of phase feedback in radians.
+
+argument::mul
+Output will be multiplied by this value.
+
+argument::add
+This value will be added to the output after any multiplication.
+
+
+Examples::
+
+code::
+
+
+(
+Ndef(\fbFM).addSpec(
+	\idx, [0, 50, \lin, 1, 0], 
+	\idxOff, [-1, 1], 
+	\modRel, [0.1, 200, \exp, 0], 
+	\fb, [0, 10], 
+	\modFb, [0, 10]
+);
+Ndef(\fbFM, {|freq = 500, idx = 1, idxOff = 0, modRel = 1, modFb = 0, fb = 0|
+	var mod;
+
+	mod = SinOscFB.ar(
+		freq: freq * modRel, 
+		feedback: modFb
+	);
+
+	SSinOscFB.ar(
+		freq: freq + (mod * ((idx + idxOff) * freq)), 
+		feedback: fb
+	)!2
+}).play
+)
+
+Ndef(\fbFM).lag(\freq, 1, \idx, 1, \idxOff, 1, \modRel, 1, \modFb, 1, \fb, 1)
+
+Ndef(\fbFM).edit
+
+(
+Ndef(\fbFM).set(
+	'modRel', 1.0, 
+	'modFb', 4.021164021164, 
+	'fb', 0.63492063492063, 
+	'freq', 28.824391934377, 
+	'idx', 2.0, 
+	'idxOff', -0.97883597883598
+);
+)
+
+(
+Ndef(\fbFM).set(
+	'modRel', 0.34788746638225, 
+	'modFb', 1.49, 
+	'fb', 1.1111111111111, 
+	'freq', 215.16717970844, 
+	'idx', 3.0, 
+	'idxOff', 0.0
+);
+)
+::
+
+code::
+(
+Ndef(\fbM2).addSpec(
+	\modRel, [0.1, 200, \exp, 0], 
+	\fbIdx, [0, 5], 
+	\modFb, [0, 10], 
+	\thinning, [0, 1], 
+	\sub, [0, 1]
+);
+Ndef(\fbM2, {|freq = 500, modRel = 0, fbIdx = 0, modFb = 0, thinning = 0, sub = 0|
+	var mod = SinOscFB.ar(
+		freq: freq * modRel, 
+		feedback: modFb
+	);
+	var snd = SSinOscFB.ar(
+		freq: freq, 
+		feedback: mod * fbIdx
+	) - (
+		thinning * SSinOscFB.ar(
+			freq: freq
+		)
+	) + (
+		sub * SSinOscFB.ar(
+			freq: freq * 0.5, 
+			feedback: mod * fbIdx
+		)
+	);
+
+	LeakDC.ar(snd).tanh!2;
+}).play;
+)
+
+Ndef(\fbM2).edit
+Ndef(\fbM2).lag(\freq, 1, \modRel, 1, \fbIdx, 1, \modFb, 1, \thinning, 1, \sub, 1)
+
+(
+Ndef('fbM2').set(
+	'modRel', 0.49960949895051, 
+	'modFb', 0.0, 
+	'fbIdx', 1.2169312169312, 
+	'thinning', 0.92063492063492, 
+	'freq', 64.411958374422, 
+	'sub', 0.74603174603175
+);
+)
+
+(
+Ndef('fbM2').set(
+	'modRel', 1.0, 
+	'fbIdx', 1.2169312169312, 
+	'modFb', 4.021164021164, 
+	'thinning', 0.92063492063492, 
+	'freq', 28.824391934377, 
+	'sub', 0.74603174603175
+);
+)
+
+(
+Ndef('fbM2').set(
+	'modRel', 2.0, 
+	'fbIdx', 2.7513227513228, 
+	'modFb', 1.1640211640212, 
+	'thinning', 0.4973544973545, 
+	'freq', 4808.1983670199, 
+	'sub', 0.88359788359788
+);
+)
+::
